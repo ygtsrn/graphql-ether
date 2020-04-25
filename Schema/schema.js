@@ -106,6 +106,16 @@ const BlockType = new GraphQLObjectType({
 const rootQueryType = new GraphQLObjectType({
     name: 'Query',
     fields: {
+        block: {
+            type: BlockType,
+            args: {
+                BlockNumber: { type: GraphQLInt },
+            },
+            async resolve(parent, { BlockNumber }) {
+                const result = await funcEther.fetchBlockAsync(BlockNumber);
+                return result;
+            }
+        },
         blocksRange: {
             type: new GraphQLList(BlockType),
             args: {
@@ -117,6 +127,25 @@ const rootQueryType = new GraphQLObjectType({
                 let blocksRangeResult = await Promise.all(blocksRangeCal.map(x => funcEther.fetchBlockAsync(x)));
                 return blocksRangeResult;
             }
+        },
+        account: {
+            type: AccountType,
+            args: {
+                Address: { type: GraphQLString },
+            },
+            async resolve(parent, { Address }) {
+                return Address;
+            }
+        },
+        transaction: {
+            type: TransactionType,
+            args: {
+                Hash: { type: GraphQLString },
+            },
+            async resolve(parent, { Hash }) {
+                const result = await funcEther.fetchTransactionAsync(Hash);
+                return result;
+            }
         }
     }
 });
@@ -126,3 +155,8 @@ const schema = new GraphQLSchema({
 });
 
 module.exports = schema;
+
+
+// transaction: {},
+//         account: {},
+//         contract: {}
