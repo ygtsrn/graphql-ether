@@ -18,14 +18,14 @@ const funcEther = require('../Resolver/ether');
 const AccountType = new GraphQLObjectType({
     name: 'Account',
     fields: {
-        balance: { 
+        balance: {
             type: GraphQLFloat,
             async resolve(parent) {
                 let result = await funcEther.fetchBalanceAsync(parent);
                 return result;
             }
         },
-        transactionCount: { 
+        transactionCount: {
             type: GraphQLInt,
             async resolve(parent) {
                 let result = await funcEther.fetchTransactionCountAsync(parent);
@@ -43,6 +43,34 @@ const AddressType = new GraphQLObjectType({
     }
 });
 
+// const ContractType = new GraphQLObjectType({
+//     name: 'Contract',
+//     fields: {
+//         standard: { type: GraphQLString, resolve: (parent) => { return "ERC20"; } },
+//         entity: { type: GraphQLString, resolve: (parent) => { return "token"; } },
+//         operation: {
+//             type: GraphQLString,
+//             resolve: (parent) => { 
+//                 let result = funcEther.fetchDecoder(parent.input);
+//                 return result.name; 
+//             }
+//         },
+//         from: { type: AddressType, resolve: (parent) => { return "parent.from"; } },
+//         to: {
+//             type: AddressType,
+//             resolve: (parent) => {
+//                 return parent.params[0].value;
+//             }
+//         },
+//         value: {
+//             type: GraphQLFloat,
+//             resolve: (parent) => {
+//                 return funcEther.fetchFromWei(parent.params[1].value);
+//             }
+//         }
+//     }
+// });
+
 const TransactionType = new GraphQLObjectType({
     name: 'Transaction',
     fields: {
@@ -56,7 +84,16 @@ const TransactionType = new GraphQLObjectType({
         input: { type: GraphQLString },
         blockHash: { type: GraphQLString },
         blockNumber: { type: GraphQLString },
-        transactionIndex: { type: GraphQLString }
+        transactionIndex: { type: GraphQLString },
+        // decoded: {
+        //     type: ContractType,
+        //     resolve: (parent) => {
+        //         if (!parent.input || parent.input === '0x') {
+        //             return null
+        //         }
+        //         return parent;
+        //     }
+        // }
     }
 });
 
@@ -88,16 +125,17 @@ const BlockType = new GraphQLObjectType({
                 ContractCreation: { type: GraphQLBoolean },
             },
             resolve: (parent, { WithInput, ContractCreation }) => {
-                // let Transactions = [];
-                // _.transform(parent.transactions, function(result, value, key) {
-                //     if (!WithInput) {
-                //         value.input = null;
-                //         result[key] = value;
-                //     }
-                //     Transactions = result;
-                // });
-                // console.log(Transactions);
-                return parent.transactions;
+                let Transactions = _.transform(parent.transactions, function (result, value) {
+                    if (!WithInput)
+                        value.input = null;
+                    if (ContractCreation) {
+                        if (value.to !== null)
+                            value = null;
+                    }
+                    result.push(value);
+                    return result;
+                }, []);
+                return _.compact(Transactions);;
             }
         }
     }
@@ -112,7 +150,7 @@ const rootQueryType = new GraphQLObjectType({
                 BlockNumber: { type: GraphQLInt },
             },
             async resolve(parent, { BlockNumber }) {
-                const result = await funcEther.fetchBlockAsync(BlockNumber);
+                let result = await funcEther.fetchBlockAsync(BlockNumber);
                 return result;
             }
         },
@@ -123,7 +161,7 @@ const rootQueryType = new GraphQLObjectType({
                 EndingBlock: { type: GraphQLInt },
             },
             async resolve(parent, { StartingBlock, EndingBlock }) {
-                const blocksRangeCal = Array.from({ length: EndingBlock - StartingBlock + 1 }, (_, x) => x + StartingBlock);
+                let blocksRangeCal = Array.from({ length: EndingBlock - StartingBlock + 1 }, (_, x) => x + StartingBlock);
                 let blocksRangeResult = await Promise.all(blocksRangeCal.map(x => funcEther.fetchBlockAsync(x)));
                 return blocksRangeResult;
             }
@@ -143,7 +181,7 @@ const rootQueryType = new GraphQLObjectType({
                 Hash: { type: GraphQLString },
             },
             async resolve(parent, { Hash }) {
-                const result = await funcEther.fetchTransactionAsync(Hash);
+                let result = await funcEther.fetchTransactionAsync(Hash);
                 return result;
             }
         }

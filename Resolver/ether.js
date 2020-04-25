@@ -1,4 +1,6 @@
 const erc20Abi = require('../Abi/erc20.json');
+const abiDecoder = require('abi-decoder');
+abiDecoder.addABI(erc20Abi);
 const _ = require('lodash');
 const Web3 = require('web3');
 let web3 = new Web3();
@@ -54,6 +56,17 @@ function fetchFromWei(param) {
     return web3.utils.fromWei(web3.utils.toBN(parseFloat(param).toLocaleString('fullwide', { useGrouping: false })), 'ether')
 }
 
+function fetchDecoder(param) {
+    if (!param || param === '0x') {
+        return null;
+    }
+    const result = abiDecoder.decodeMethod(param);
+    if (result) {
+        
+    }
+    return result;
+}
+
 module.exports = {
     fetchBlockAsync,
     fetchTransactionAsync,
@@ -62,5 +75,6 @@ module.exports = {
     fetchSymbolAsync,
     fetchTotalSupplyAsync,
     fetchBalanceOfAsync,
-    fetchFromWei
+    fetchFromWei,
+    fetchDecoder
 }
