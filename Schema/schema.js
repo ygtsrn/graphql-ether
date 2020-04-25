@@ -53,7 +53,26 @@ const BlockType = new GraphQLObjectType({
         difficulty: { type: GraphQLString },
         totalDifficulty: { type: GraphQLString },
         timestamp: { type: GraphQLString },
-        transactions: {type: new GraphQLList(TransactionType) }
+        transactions: {
+            type: new GraphQLList(TransactionType),
+            args: {
+                WithInput: { type: GraphQLBoolean },
+                ContractCreation: { type: GraphQLBoolean },
+            },
+            resolve: (parent, { WithInput, ContractCreation }) => {
+                let Transactions = [];
+                _.transform(parent.transactions, function(result, value, key) {
+                    if (!WithInput) {
+                        value.input = null;
+                        result[key] = value;
+                    }
+                    Transactions = result;
+                });
+
+                console.log(Transactions);
+                return Transactions;
+            }
+        }
     }
 });
 
