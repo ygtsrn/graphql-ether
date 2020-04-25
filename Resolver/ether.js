@@ -66,8 +66,8 @@ function fetchDecoder(param) {
         return null;
     }
     const result = abiDecoder.decodeMethod(param);
-    if (result) {
-        
+    if (typeof result === 'undefined') {
+        return null;
     }
     return result;
 }

@@ -43,33 +43,56 @@ const AddressType = new GraphQLObjectType({
     }
 });
 
-// const ContractType = new GraphQLObjectType({
-//     name: 'Contract',
-//     fields: {
-//         standard: { type: GraphQLString, resolve: (parent) => { return "ERC20"; } },
-//         entity: { type: GraphQLString, resolve: (parent) => { return "token"; } },
-//         operation: {
-//             type: GraphQLString,
-//             resolve: (parent) => { 
-//                 let result = funcEther.fetchDecoder(parent.input);
-//                 return result.name; 
-//             }
-//         },
-//         from: { type: AddressType, resolve: (parent) => { return "parent.from"; } },
-//         to: {
-//             type: AddressType,
-//             resolve: (parent) => {
-//                 return parent.params[0].value;
-//             }
-//         },
-//         value: {
-//             type: GraphQLFloat,
-//             resolve: (parent) => {
-//                 return funcEther.fetchFromWei(parent.params[1].value);
-//             }
-//         }
-//     }
-// });
+const ContractType = new GraphQLObjectType({
+    name: 'Contract',
+    fields: {
+        symbol: {
+            type: GraphQLString,
+            async resolve (parent) {
+                let result = await funcEther.fetchSymbolAsync(parent);
+                return result;
+            }
+        },
+        totalSupply: {
+            type: GraphQLString, 
+            async resolve (parent) {
+                let result = funcEther.fetchFromWei(await funcEther.fetchTotalSupplyAsync(parent)); ;
+                return result;
+            }
+        }
+    }
+});
+
+const DecodedType = new GraphQLObjectType({
+    name: 'Decoded',
+    fields: {
+        standard: { type: GraphQLString, resolve: (parent) => { return "ERC20"; } },
+        entity: { type: GraphQLString, resolve: (parent) => { return "token"; } },
+        contract: { type: ContractType, resolve: (parent) => { return parent.to; } },
+        operation: {
+            type: GraphQLString,
+            resolve: (parent) => {
+                let result = funcEther.fetchDecoder(parent.input);
+                return result.name;
+            }
+        },
+        from: { type: AddressType, resolve: (parent) => { return parent.from; } },
+        to: {
+            type: AddressType,
+            resolve: (parent) => {
+                let result = funcEther.fetchDecoder(parent.input);
+                return result.params[0].value;
+            }
+        },
+        value: {
+            type: GraphQLFloat,
+            resolve: (parent) => {
+                let result = funcEther.fetchDecoder(parent.input);
+                return funcEther.fetchFromWei(result.params[1].value);
+            }
+        }
+    }
+});
 
 const TransactionType = new GraphQLObjectType({
     name: 'Transaction',
@@ -95,15 +118,19 @@ const TransactionType = new GraphQLObjectType({
         blockHash: { type: GraphQLString },
         blockNumber: { type: GraphQLString },
         transactionIndex: { type: GraphQLString },
-        // decoded: {
-        //     type: ContractType,
-        //     resolve: (parent) => {
-        //         if (!parent.input || parent.input === '0x') {
-        //             return null
-        //         }
-        //         return parent;
-        //     }
-        // }
+        decoded: {
+            type: DecodedType,
+            resolve: (parent) => {
+                if (!parent.input || parent.input === '0x') {
+                    return null
+                }
+                let result = funcEther.fetchDecoder(parent.input);
+                if (!result) {
+                    return null
+                }
+                return parent;
+            }
+        }
     }
 });
 
@@ -199,6 +226,15 @@ const rootQueryType = new GraphQLObjectType({
                 let result = await funcEther.fetchTransactionAsync(Hash);
                 return result;
             }
+        },
+        contract: {
+            type: ContractType,
+            args: {
+                ContractAddress: { type: GraphQLString },
+            },
+            async resolve(parent, { ContractAddress }) {
+                return ContractAddress;
+            }
         }
     }
 });
@@ -208,8 +244,3 @@ const schema = new GraphQLSchema({
 });
 
 module.exports = schema;
-
-
-// transaction: {},
-//         account: {},
-//         contract: {}
