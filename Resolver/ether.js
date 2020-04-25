@@ -47,12 +47,12 @@ async function fetchSymbolAsync(param) {
 
 async function fetchTotalSupplyAsync(param) {
     let contract = new web3.eth.Contract(erc20Abi, param);
-    return await contract.methods.totalSupply().call().catch(() => undefined);
+    return fetchFromWei(await contract.methods.totalSupply().call().catch(() => undefined));
 }
 
 async function fetchBalanceOfAsync(param01, param02) {
     let contract = new web3.eth.Contract(erc20Abi, param01);
-    return await contract.methods.balanceOf(param02).call().catch(() => undefined);
+    return fetchFromWei(await contract.methods.balanceOf(param02).call().catch(() => undefined));
 }
 
 /////// UTILS

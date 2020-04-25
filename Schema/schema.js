@@ -19,7 +19,7 @@ const AccountType = new GraphQLObjectType({
     name: 'Account',
     fields: {
         balance: {
-            type: GraphQLFloat,
+            type: GraphQLString,
             async resolve(parent) {
                 let result = await funcEther.fetchBalanceAsync(parent);
                 return result;
@@ -56,7 +56,7 @@ const ContractType = new GraphQLObjectType({
         totalSupply: {
             type: GraphQLString, 
             async resolve (parent) {
-                let result = funcEther.fetchFromWei(await funcEther.fetchTotalSupplyAsync(parent)); ;
+                let result = await funcEther.fetchTotalSupplyAsync(parent);
                 return result;
             }
         }
@@ -85,7 +85,7 @@ const DecodedType = new GraphQLObjectType({
             }
         },
         value: {
-            type: GraphQLFloat,
+            type: GraphQLString,
             resolve: (parent) => {
                 let result = funcEther.fetchDecoder(parent.input);
                 return funcEther.fetchFromWei(result.params[1].value);
@@ -110,7 +110,7 @@ const TransactionType = new GraphQLObjectType({
         hash: { type: GraphQLString },
         from: { type: AddressType, resolve: (parent) => { return parent.from; } },
         to: { type: AddressType, resolve: (parent) => { return parent.to; } },
-        value: { type: GraphQLFloat, resolve: (parent) => { return funcEther.fetchFromWei(parent.value); } },
+        value: { type: GraphQLString, resolve: (parent) => { return funcEther.fetchFromWei(parent.value); } },
         nonce: { type: GraphQLInt },
         gas: { type: GraphQLString },
         gasPrice: { type: GraphQLString },
