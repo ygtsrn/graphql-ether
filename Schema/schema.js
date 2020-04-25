@@ -15,13 +15,41 @@ const {
 const _ = require('lodash');
 const funcEther = require('../Resolver/ether');
 
+const AccountType = new GraphQLObjectType({
+    name: 'Account',
+    fields: {
+        balance: { 
+            type: GraphQLFloat,
+            async resolve(parent) {
+                let result = await funcEther.fetchBalanceAsync(parent);
+                return result;
+            }
+        },
+        transactionCount: { 
+            type: GraphQLInt,
+            async resolve(parent) {
+                let result = await funcEther.fetchTransactionCountAsync(parent);
+                return result;
+            }
+        }
+    }
+});
+
+const AddressType = new GraphQLObjectType({
+    name: 'Address',
+    fields: {
+        address: { type: GraphQLString, resolve: (parent) => { return parent; } },
+        account: { type: AccountType, resolve: (parent) => { return parent; } }
+    }
+});
+
 const TransactionType = new GraphQLObjectType({
     name: 'Transaction',
     fields: {
         hash: { type: GraphQLString },
-        from: { type: GraphQLString },
-        to: { type: GraphQLString },
-        value: { type: GraphQLFloat },
+        from: { type: AddressType, resolve: (parent) => { return parent.from; } },
+        to: { type: AddressType, resolve: (parent) => { return parent.to; } },
+        value: { type: GraphQLFloat, resolve: (parent) => { return funcEther.fetchFromWei(parent.value); } },
         nonce: { type: GraphQLInt },
         gas: { type: GraphQLString },
         gasPrice: { type: GraphQLString },
@@ -60,17 +88,16 @@ const BlockType = new GraphQLObjectType({
                 ContractCreation: { type: GraphQLBoolean },
             },
             resolve: (parent, { WithInput, ContractCreation }) => {
-                let Transactions = [];
-                _.transform(parent.transactions, function(result, value, key) {
-                    if (!WithInput) {
-                        value.input = null;
-                        result[key] = value;
-                    }
-                    Transactions = result;
-                });
-
-                console.log(Transactions);
-                return Transactions;
+                // let Transactions = [];
+                // _.transform(parent.transactions, function(result, value, key) {
+                //     if (!WithInput) {
+                //         value.input = null;
+                //         result[key] = value;
+                //     }
+                //     Transactions = result;
+                // });
+                // console.log(Transactions);
+                return parent.transactions;
             }
         }
     }
