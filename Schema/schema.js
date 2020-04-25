@@ -74,6 +74,16 @@ const AddressType = new GraphQLObjectType({
 const TransactionType = new GraphQLObjectType({
     name: 'Transaction',
     fields: {
+        status: {
+            type: GraphQLString,
+            async resolve(parent) {
+                let result = await funcEther.fetchTransactionReceiptAsync(parent.hash);
+                if (!result) {
+                    return 'PENDING';
+                }
+                return result.status === undefined ? null : result.status ? 'SUCCESS' : 'FAILED';
+            }
+        },
         hash: { type: GraphQLString },
         from: { type: AddressType, resolve: (parent) => { return parent.from; } },
         to: { type: AddressType, resolve: (parent) => { return parent.to; } },
@@ -118,6 +128,7 @@ const BlockType = new GraphQLObjectType({
         difficulty: { type: GraphQLString },
         totalDifficulty: { type: GraphQLString },
         timestamp: { type: GraphQLString },
+        transactionCount: { type: GraphQLInt, resolve: (parent) => { return parent.transactions.length; } },
         transactions: {
             type: new GraphQLList(TransactionType),
             args: {
@@ -130,6 +141,10 @@ const BlockType = new GraphQLObjectType({
                         value.input = null;
                     if (ContractCreation) {
                         if (value.to !== null)
+                            value = null;
+                    }
+                    else {
+                        if (value.to === null)
                             value = null;
                     }
                     result.push(value);

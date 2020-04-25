@@ -21,6 +21,11 @@ async function fetchTransactionAsync(param) {
     return result;
 }
 
+async function fetchTransactionReceiptAsync(param) {
+    const result = await web3.eth.getTransactionReceipt(param);
+    return result;
+}
+
 async function fetchTransactionCountAsync(param) {
     const result = await web3.eth.getTransactionCount(param);
     return result;
@@ -70,6 +75,7 @@ function fetchDecoder(param) {
 module.exports = {
     fetchBlockAsync,
     fetchTransactionAsync,
+    fetchTransactionReceiptAsync,
     fetchTransactionCountAsync,
     fetchBalanceAsync,
     fetchSymbolAsync,
