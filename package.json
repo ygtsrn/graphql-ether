@@ -1,0 +1,37 @@
+{
+  "name": "graphql-ether",
+  "version": "1.0.0",
+  "description": "GraphQL query set for Ethereum",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ygtsrn/graphql-ether.git"
+  },
+  "keywords": [
+    "ether",
+    "graphql",
+    "ethereum",
+    "web3",
+    "query",
+    "ether",
+    "base",
+    "coins"
+  ],
+  "author": "ygtsrn",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ygtsrn/graphql-ether/issues"
+  },
+  "homepage": "https://github.com/ygtsrn/graphql-ether#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "graphql": "^15.0.0",
+    "lodash": "^4.17.15",
+    "web3": "^1.2.7"
+  }
+}
