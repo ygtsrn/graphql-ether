@@ -1,11 +1,12 @@
-const erc20Abi = require('../Abi/erc20.json');
-const abiDecoder = require('abi-decoder');
-abiDecoder.addABI(erc20Abi);
-const _ = require('lodash');
-const Web3 = require('web3');
-let web3 = new Web3();
+console.log("For special application tests, see the './Test/test.js' file.");
+// const erc20Abi = require('../Abi/erc20.json');
+// const abiDecoder = require('abi-decoder');
+// abiDecoder.addABI(erc20Abi);
+// const _ = require('lodash');
+// const Web3 = require('web3');
+// let web3 = new Web3();
 
-web3.setProvider(new web3.providers.HttpProvider('https://mainnet.infura.io/v3/ec65db126da644e2bc5088d43df4e73f'));
+// web3.setProvider(new web3.providers.HttpProvider('https://rinkeby.infura.io/v3/'));
 
 /////////////////////////////////////////////////////////////////
 // function fetchDecoder(param) {

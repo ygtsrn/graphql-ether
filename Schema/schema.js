@@ -151,7 +151,7 @@ const BlockType = new GraphQLObjectType({
         sha3Uncles: { type: GraphQLString },
         logsBloom: { type: GraphQLString },
         extraData: { type: GraphQLString },
-        miner: { type: GraphQLString },
+        miner: { type: AddressType, resolve: (parent) => { return parent.miner; } },
         difficulty: { type: GraphQLString },
         totalDifficulty: { type: GraphQLString },
         timestamp: { type: GraphQLString },

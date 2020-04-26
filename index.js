@@ -10,8 +10,9 @@ app.set('port', (process.env.PORT || 4000));
 app.use('/GraphQlEther', graphqlHTTP({
     schema: schema,
     graphiql: true
+    // graphiql: process.env.NODE_ENV === 'development'
 }));
 
 app.listen(app.get('port'), () => {
-    console.log('Listening on port : ' + app.get('port') + ' System status : ' + process.env.SYSTEM_MOD);
+    console.log('Listening on port : ' + app.get('port') + ' System status : ' + process.env.NODE_ENV);
 });
