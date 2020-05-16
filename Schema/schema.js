@@ -15,6 +15,26 @@ const {
 const _ = require('lodash');
 const funcEther = require('../Resolver/ether');
 
+const TokenType = new GraphQLObjectType({
+    name: 'Token',
+    fields: {
+        symbol: {
+            type: GraphQLString,
+            async resolve (parent) {
+                let result = await funcEther.fetchSymbolAsync(parent.ContractAddress);
+                return result;
+            }
+        },
+        balance: {
+            type: GraphQLString,
+            async resolve(parent) {
+                let result = await funcEther.fetchBalanceOfAsync(parent.ContractAddress, parent.AccountAddress);
+                return result;
+            }
+        }
+    }
+});
+
 const AccountType = new GraphQLObjectType({
     name: 'Account',
     fields: {
@@ -31,7 +51,16 @@ const AccountType = new GraphQLObjectType({
                 let result = await funcEther.fetchTransactionCountAsync(parent);
                 return result;
             }
-        }
+        },
+        token:{ 
+            type: TokenType,
+            args: {
+                Contract: { type: GraphQLString }
+            },
+            async resolve(parent, { Contract }) {
+                return {AccountAddress: parent, ContractAddress: Contract};
+            }
+         }
     }
 });
 
@@ -58,6 +87,18 @@ const ContractType = new GraphQLObjectType({
             async resolve (parent) {
                 let result = await funcEther.fetchTotalSupplyAsync(parent);
                 return result;
+            }
+        },
+        circulatingSupply: {
+            type: GraphQLString,
+            args: {
+                HolderAddress: { type: GraphQLString },
+            },
+            async resolve(parent, { HolderAddress }) {
+                let resultTotalSupply = await funcEther.fetchTotalSupplyAsync(parent);
+                let resultBalanceOf = await funcEther.fetchBalanceOfAsync(parent, HolderAddress);
+                let circulatingSupplyCal = resultTotalSupply - resultBalanceOf;
+                return circulatingSupplyCal;
             }
         }
     }
@@ -211,7 +252,7 @@ const rootQueryType = new GraphQLObjectType({
         account: {
             type: AccountType,
             args: {
-                Address: { type: GraphQLString },
+                Address: { type: GraphQLString }
             },
             async resolve(parent, { Address }) {
                 return Address;
