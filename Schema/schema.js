@@ -171,6 +171,17 @@ const TransactionType = new GraphQLObjectType({
                 }
                 return parent;
             }
+        },
+        confirmation: {
+            type: GraphQLInt,
+            async resolve(parent) {
+                let calConfirmation = 0;
+                if(parent.blockNumber != null){
+                    let resultCurrentBlock = await funcEther.fetchBlockNumberAsync();
+                    calConfirmation = resultCurrentBlock - parent.blockNumber;
+                }
+                return calConfirmation;
+            }
         }
     }
 });

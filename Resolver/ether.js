@@ -14,6 +14,11 @@ async function fetchBlockAsync(param){
     return result;
 }
 
+async function fetchBlockNumberAsync(){
+    const result = await web3.eth.getBlockNumber();
+    return result;
+}
+
 /////// TRANSACTION
 
 async function fetchTransactionAsync(param) {
@@ -74,6 +79,7 @@ function fetchDecoder(param) {
 
 module.exports = {
     fetchBlockAsync,
+    fetchBlockNumberAsync,
     fetchTransactionAsync,
     fetchTransactionReceiptAsync,
     fetchTransactionCountAsync,
