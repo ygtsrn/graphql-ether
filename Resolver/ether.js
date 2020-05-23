@@ -63,7 +63,11 @@ async function fetchBalanceOfAsync(param01, param02) {
 /////// UTILS
 
 function fetchFromWei(param) {
-    return web3.utils.fromWei(web3.utils.toBN(parseFloat(param).toLocaleString('fullwide', { useGrouping: false })), 'ether')
+    return web3.utils.fromWei(web3.utils.toBN(parseFloat(param).toLocaleString('fullwide', { useGrouping: false })), 'ether');
+}
+
+function fetchFeeCalculate(param01, param02){
+    return fetchFromWei((param01 * param02));
 }
 
 function fetchDecoder(param) {
@@ -88,5 +92,6 @@ module.exports = {
     fetchTotalSupplyAsync,
     fetchBalanceOfAsync,
     fetchFromWei,
+    fetchFeeCalculate,
     fetchDecoder
 }

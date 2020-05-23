@@ -182,6 +182,13 @@ const TransactionType = new GraphQLObjectType({
                 }
                 return calConfirmation;
             }
+        },
+        fee: {
+            type: GraphQLString,
+            resolve: (parent) => {
+                let result = funcEther.fetchFeeCalculate(parent.gasPrice, parent.gas);
+                return result;
+            }
         }
     }
 });
